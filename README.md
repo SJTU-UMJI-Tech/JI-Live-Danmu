@@ -1,28 +1,29 @@
 # JI-Live-Danmu-Client
 
-## Usage:
+## Usage
 
-1. Set secret key in Danmu/config.py
 ```bash
-vim Danmu/config.py
-```
-2. Run Live Danmu(Optional:Set server url)
-```bash
-LiteDanmu.py [-h] [-serverurl SERVERURL] [-sk SecretKey]
+cp <cert_filepath> .
+LiteDanmu.py [-h] [-serverurl SERVERURL]
 ```
 
-## Build:
+## Build
 
 1. Install pyinstaller
-```bash
-pip install pyinstaller
-```
+
+   ```bash
+   pip install pyinstaller
+   ```
+
 2. Build
-```bash
-pyinstaller .\LiteDanmu.py
-mv dist/LiteDanmu/PyQt5/Qt/plugins/platforms/ dist/LiteDanmu
-```
+
+   ```bash
+   pyinstaller .\LiteDanmu.py
+   mv dist/LiteDanmu/PyQt5/Qt/plugins/platforms/ dist/LiteDanmu
+   ```
+
 3. Run
-```bash
-dist/LiteDanmu/LiteDanmu.exe [-h] [-serverurl SERVERURL] [-sk SecretKey]
-```
+
+   ```bash
+   dist/LiteDanmu/LiteDanmu.exe [-h] [-serverurl SERVERURL]
+   ```

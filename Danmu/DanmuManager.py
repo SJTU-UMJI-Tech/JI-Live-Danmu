@@ -8,14 +8,13 @@ from Danmu.config import *
 
 # manage all Danmus
 class DanmuManager:
-    def __init__(self, window, screenWidth, screenHeight, displayArea=0.9):
-        self.screenWidth = screenWidth
-        self.screenHeight = screenHeight
+    def __init__(self, window, displayArea=0.9):
         self.window = window
+        self.width, self.height = window.getDisplayArea()
         self.flyTracks = []
         self.topTracks = []
         self.btmTracks = []
-        for _ in range(int(screenHeight * displayArea / (FONT_SIZE + 20))):
+        for _ in range(int(self.height * displayArea / (FONT_SIZE + 20))):
             self.flyTracks.append([])
             self.topTracks.append([])
             self.btmTracks.append([])
@@ -55,10 +54,8 @@ class DanmuManager:
                     break
                 else:
                     v1 = track[-1][0].getSpeed()
-                    minIntervalTime = (self.screenWidth +
-                                       track[-1][0].width() -
-                                       self.screenWidth *
-                                       v1 / v2) / v1
+                    minIntervalTime = (self.width + track[-1][0].width() -
+                                       self.width * v1 / v2) / v1
                     minIntervalTime = max(minIntervalTime,
                                           track[-1][0].width() / v1)
                     if time.time() - track[-1][1] > minIntervalTime / 1000:
@@ -95,7 +92,7 @@ class DanmuManager:
                 ) - track[-1][1] > DISPLAY_TIME / 1000 + 1:
                     track.append((Danmu(
                         text, color,
-                        self.screenHeight - 30 - (FONT_SIZE + 20) * (1 + idx),
+                        self.height - (FONT_SIZE + 20) * (1 + idx),
                         self.window), time.time()))
                     track[-1][0].showFixedDanmu()
                     isAdded = True
@@ -122,7 +119,7 @@ class DanmuManager:
         else:
             # classify Danmu
             text, color, style = self.parseText(text)
-            if text.strip() == '':
+            if len(text.strip()) == 0:
                 return
             if style == 'fly':
                 self.flyDanmuQueue.append((text, color))
@@ -133,8 +130,12 @@ class DanmuManager:
 
     # analyze special commands in text
     def parseText(self, text):
+        text = re.sub(r'/Emoji\d+|/表情|^ | $', '',
+                      text.replace('\n', ' '))[0:MAX_STR_LEN]
         textColor = QColor(240, 240, 240)
         style = 'fly'
+        if re.search(r'请使用手机QQ进行查看', text):
+            return '', textColor, style
         matchObject = re.search(
             r'\#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})', text)
         if matchObject:
@@ -148,4 +149,4 @@ class DanmuManager:
         elif re.search(r'\#btm', text, re.I):
             style = 'btm'
             text = re.sub(r'\#btm', '', text, re.I)
-        return text, textColor, style
+        return text.strip(), textColor, style

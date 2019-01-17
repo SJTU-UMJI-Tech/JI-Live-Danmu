@@ -5,6 +5,7 @@ import os
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QApplication, QDesktopWidget
+from PyQt5.QtCore import Qt
 
 from Danmu.App import App
 from Danmu.config import *
@@ -19,26 +20,19 @@ if __name__ == '__main__':
         'serverUrl',
         type=str,
         nargs='?',
-        default='http://127.0.0.1:5000/',
+        default='127.0.0.1',
         help='server url')
     parser.add_argument(
-        '-sk',
-        type=str,
-        default='YourSecretKey',
-        help='secret key')
+        'serverPort', type=int, nargs='?', default=6000, help='server port')
     args = parser.parse_args()
 
     app = QApplication(sys.argv)
-    screenRect = QDesktopWidget.screenGeometry(QApplication.desktop())
-    screenWidth = screenRect.width()
-    screenHeight = screenRect.height()
-    ex = App(screenWidth, screenHeight)
-
-    MyMessageQueueManager = MessageQueueManager(args.serverUrl, args.sk)
-    MyDanmuManager = DanmuManager(ex, screenWidth, screenHeight)
+    MyMainWindow = App()
+    MyMessageQueueManager = MessageQueueManager(args.serverUrl,
+                                                args.serverPort)
+    MyDanmuManager = DanmuManager(MyMainWindow)
     MyDanmuManager.addDanmu("Hello, World!")
-    MyMarquee = Marquee(ex, FOOTER_TEXT, QColor(255, 0, 0),
-                        screenWidth, screenHeight)
+    MyMarquee = Marquee(MyMainWindow, FOOTER_TEXT, QColor(255, 0, 0))
 
     tictoc = True
     while True:
@@ -46,12 +40,12 @@ if __name__ == '__main__':
         if tictoc:
             # refresh Ui
             if os.name == 'nt':
-                ex.raise_()
+                MyMainWindow.raise_()
             MyDanmuManager.cleanDanmu()
             MyMarquee.changeColor()
         else:
             # get new message
-            MyMessageQueueManager.add2DanmuManager(MyDanmuManager)
-            MyDanmuManager.showDanmu()
+            MyMessageQueueManager.classifyDanmu(MyMainWindow, MyDanmuManager,
+                                                MyMarquee)
         tictoc = not tictoc
         sleep(0.1)
